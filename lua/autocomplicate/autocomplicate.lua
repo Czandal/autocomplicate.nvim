@@ -99,12 +99,12 @@ end
 ---@return boolean
 function autocomplicate:should_run()
     local full_path = vim.api.nvim_buf_get_name(0)
-    for filetype in self.blacklisted_file_types do
+    for _, filetype in ipairs(self.blacklisted_file_types) do
         if string.find(full_path, filetype) ~= nil then
             return false
         end
     end
-    for filetype in self.allowed_file_types do
+    for _, filetype in ipairs(self.allowed_file_types) do
         if string.find(full_path, filetype) ~= nil then
             return true
         end
@@ -259,6 +259,7 @@ function autocomplicate:request_new_hint()
     }, function(code, signal)
         if code ~= 0 then
             logger:error({ "Failed to retrieve autosuggestion, process exited", code, signal })
+            utils.communicate_error({ "[Autocomplicate] Failed to retrieve autosuggestion, process exited", code, signal, reason = self.raw_hint_output_jsons })
         end
         logger:info("Finished retrieving data from autosuggestion server")
         self.hint_complete = true

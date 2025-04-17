@@ -1,22 +1,9 @@
+local dump_to_string = require('autocomplicate.utils').dump_to_string
 -- hardcoded, change if you want to see the debug logs from autocomplicate
 local log_enabled = false
 -- set to file path if you want the logs to be printed
 local log_path = nil
 
----@param o any
----@return string
-local function dump_to_string(o)
-    if type(o) == 'table' then
-        local s = '{ '
-        for k, v in pairs(o) do
-            if type(k) ~= 'number' then k = '"' .. k .. '"' end
-            s = s .. '[' .. k .. '] = ' .. dump_to_string(v) .. ','
-        end
-        return s .. '} '
-    else
-        return tostring(o)
-    end
-end
 ---@class logger
 ---Highly inefficient logger implementation, which should be used only for dev purposes
 ---@field enabled boolean
