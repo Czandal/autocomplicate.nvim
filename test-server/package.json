@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/package",
+  "name": "test-server",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "PORT=11445 node dist/index.js",
+    "dev": "PORT=11445 ts-node src/index.ts",
+    "build": "tsc"
+  },
+  "author": "Czandal",
+  "description": "Test server which emulates deepseek-coder-v2 API",
+  "devDependencies": {
+    "@types/node": "^22.13.12",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "fastify": "^5.2.1"
+  }
+}
