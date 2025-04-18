@@ -3,7 +3,6 @@ local logger = require('autocomplicate.logger')
 local utils = require('autocomplicate.utils')
 -- TODO: Handle cursor being at the end of buffer
 -- TODO: Setup config
--- host
 -- enable/disable
 -- add commands
 -- clean up the files
@@ -23,6 +22,7 @@ local autocomplicate = {
     allowed_file_types = {},
     blacklisted_file_types = {},
     max_tokens = 32,
+    llm_model = 'deepseek-coder-v2',
 }
 
 --- @return integer
@@ -237,7 +237,7 @@ function autocomplicate:request_new_hint()
         self.update_hint(self)
     end)
     local payload = {
-        model = 'deepseek-coder-v2',
+        model = self.llm_model,
         prompt = self.get_prefix(self),
         suffix = self.get_suffix(self),
         max_tokens = self.max_tokens
@@ -348,6 +348,7 @@ end
 ---@field blacklisted_file_types? string[] if empty defaults to empty list
 ---can use patterns, but string.find is used under the hood so one needs to use ".*" instead of "*" to match any string
 ---@field default_keymaps? boolean defaults to false
+---@field model string defaults to deepseek-coder-v2
 
 ---@param config AutocomplicateConfig
 function autocomplicate.setup(config)
@@ -356,6 +357,7 @@ function autocomplicate.setup(config)
     autocomplicate.allowed_file_types = config.allowed_file_types or {}
     autocomplicate.blacklisted_file_types = config.blacklisted_file_types or {}
     autocomplicate.max_tokens = config.max_tokens or 32
+    autocomplicate.llm_model = config.model or "deepseek-coder-v2"
     --#region autocmd
     if config.register_autocmd then
         vim.api.nvim_command('autocmd InsertEnter * lua AutocomplicateStart()')
