@@ -1,6 +1,7 @@
 local StaggeredTask = require('autocomplicate.staggered_task')
 local logger = require('autocomplicate.logger')
 local utils = require('autocomplicate.utils')
+local llm_options = require('autocomplicate.llm_options')
 -- TODO: Handle cursor being at the end of buffer
 -- TODO: Setup config
 -- enable/disable
@@ -21,7 +22,6 @@ local autocomplicate = {
     lines_in_context = 10,
     allowed_file_types = {},
     blacklisted_file_types = {},
-    max_tokens = 32,
     llm_model = 'deepseek-coder-v2',
 }
 
@@ -240,7 +240,7 @@ function autocomplicate:request_new_hint()
         model = self.llm_model,
         prompt = self.get_prefix(self),
         suffix = self.get_suffix(self),
-        max_tokens = self.max_tokens
+        options = self.options
     }
     logger:echo("requesting")
     local stdout = vim.uv.new_pipe(false)
@@ -345,13 +345,13 @@ end
 ---@field register_autocmd? boolean defaults to false
 ---@field host? string defaults to http://localhost:11434/api/generate
 ---@field context_line_size? integer defaults to 10
----@field max_tokens? integer defaults to 32
 ---@field allowed_file_types? string[] if empty starts the autocomplicate for all kind of files
 ---can use patterns, but string.find is used under the hood so one needs to use ".*"
 ---@field blacklisted_file_types? string[] if empty defaults to empty list
 ---can use patterns, but string.find is used under the hood so one needs to use ".*" instead of "*" to match any string
 ---@field default_keymaps? boolean defaults to false
 ---@field model string defaults to deepseek-coder-v2
+---@field llm_options? AutocomplicateLlmOptions defaults to {}
 
 ---@param config AutocomplicateConfig
 function autocomplicate.setup(config)
@@ -359,7 +359,7 @@ function autocomplicate.setup(config)
     autocomplicate.deepseek_host = config.host or "http://localhost:11434/api/generate"
     autocomplicate.allowed_file_types = config.allowed_file_types or {}
     autocomplicate.blacklisted_file_types = config.blacklisted_file_types or {}
-    autocomplicate.max_tokens = config.max_tokens or 32
+    autocomplicate.options = llm_options.parse_llm_options(config.llm_options or {})
     autocomplicate.llm_model = config.model or "deepseek-coder-v2"
     --#region autocmd
     if config.register_autocmd then
