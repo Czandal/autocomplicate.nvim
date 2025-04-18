@@ -43,7 +43,7 @@ function autocomplicate:get_current_hint_lines()
             if string.sub(line, -1) == "}" then
                 -- TODO: Fix this error, debug why it happens in the first place
                 xpcall(function() table.insert(decoded_hint_parts, vim.fn.json_decode(line).response) end, function(err)
-                    logger:error({ err, line })
+                    logger:error({ error=err, line=line })
                 end)
             else
                 table.insert(remaining_lines, line)
@@ -296,10 +296,13 @@ function autocomplicate:request_new_hint()
         end)
     end
     return function()
-        logger:info("On Close called")
-        closed = true
-        self.hint_complete = true
-        update_hint_with_stagger:stop()
+        if ~closed then
+            logger:info("On Close called")
+            closed = true
+            self.hint_complete = true
+            update_hint_with_stagger:stop()
+            handle:close()
+        end
     end
 end
 
