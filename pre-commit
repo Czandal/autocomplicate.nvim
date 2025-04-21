@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# This script runs stylua
+staged_files=$(git diff --cached --name-only -z | tr '\0' ' ')
+echo "Formatting files..."
+make fmt
+git add $staged_files

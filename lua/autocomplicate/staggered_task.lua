@@ -26,10 +26,10 @@ function StaggeredTask:run_with_stagger(stagger_ms)
         self.timer.stop(self.timer)
     end
     self.timer:start(stagger_ms, 0, function()
-        vim.schedule(function ()
+        vim.schedule(function()
             self.ran = true
             self.task()
-        end)  -- Schedule to avoid async issues
+        end) -- Schedule to avoid async issues
     end)
 end
 
@@ -40,4 +40,3 @@ function StaggeredTask:stop()
     end
 end
 return StaggeredTask
-

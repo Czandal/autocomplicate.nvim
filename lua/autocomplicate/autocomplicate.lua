@@ -1,7 +1,7 @@
-local StaggeredTask = require('autocomplicate.staggered_task')
-local logger = require('autocomplicate.logger')
-local utils = require('autocomplicate.utils')
-local llm_options = require('autocomplicate.llm_options')
+local StaggeredTask = require("autocomplicate.staggered_task")
+local logger = require("autocomplicate.logger")
+local utils = require("autocomplicate.utils")
+local llm_options = require("autocomplicate.llm_options")
 -- TODO: Handle cursor being at the end of buffer
 -- TODO: Setup config
 -- enable/disable
@@ -13,16 +13,16 @@ local autocomplicate = {
     namespace = nil,
     hint_id = nil,
     disabled = false,
-    deepseek_host = 'http://127.0.0.1:11434/api/generate',
-    raw_hint_output_jsons = '',
+    deepseek_host = "http://127.0.0.1:11434/api/generate",
+    raw_hint_output_jsons = "",
     hint_complete = true,
-    accumulated_hint = '',
+    accumulated_hint = "",
     on_close = nil,
     move_trigger = nil,
     lines_in_context = 10,
     allowed_file_types = {},
     blacklisted_file_types = {},
-    llm_model = 'deepseek-coder-v2',
+    llm_model = "deepseek-coder-v2",
 }
 
 --- @return integer
@@ -35,15 +35,23 @@ end
 
 ---@return string[]
 function autocomplicate:get_current_hint_lines()
-    if self.raw_hint_output_jsons ~= nil and #self.raw_hint_output_jsons > 0 then
+    if
+        self.raw_hint_output_jsons ~= nil
+        and #self.raw_hint_output_jsons > 0
+    then
         local remaining_lines = {}
         local decoded_hint_parts = {}
         for line in self.raw_hint_output_jsons:gmatch("([^\n]*)\n?") do
             -- Ignore lines which do not end with "}" and consider them "incomplete"
             if string.sub(line, -1) == "}" then
                 -- TODO: Fix this error, debug why it happens in the first place
-                xpcall(function() table.insert(decoded_hint_parts, vim.fn.json_decode(line).response) end, function(err)
-                    logger:error({ error=err, line=line })
+                xpcall(function()
+                    table.insert(
+                        decoded_hint_parts,
+                        vim.fn.json_decode(line).response
+                    )
+                end, function(err)
+                    logger:error({ error = err, line = line })
                 end)
             else
                 table.insert(remaining_lines, line)
@@ -51,7 +59,8 @@ function autocomplicate:get_current_hint_lines()
         end
 
         self.raw_hint_output_jsons = table.concat(remaining_lines, "\n")
-        self.accumulated_hint = self.accumulated_hint .. table.concat(decoded_hint_parts, '')
+        self.accumulated_hint = self.accumulated_hint
+            .. table.concat(decoded_hint_parts, "")
     end
     if #self.accumulated_hint > 0 then
         local out = {}
@@ -77,7 +86,6 @@ function autocomplicate:get_current_hint_lines()
     end
     return {}
 end
-
 
 function autocomplicate:clear_hint()
     if self.on_close ~= nil then
@@ -150,33 +158,46 @@ function autocomplicate:update_hint()
     if #hint_lines == 0 then
         return
     elseif #hint_lines == 1 then
-        self.hint_id = vim.api.nvim_buf_set_extmark(0, autocomplicate:get_namespace(), row - 1, col, {
-            id = self.hint_id,
-            hl_group = 'Comment',
-            virt_text_pos = 'inline',
-            hl_eol = false,
-            strict = false,
-            virt_text = { { hint_lines[1], 'Comment' } },
-        })
+        self.hint_id = vim.api.nvim_buf_set_extmark(
+            0,
+            autocomplicate:get_namespace(),
+            row - 1,
+            col,
+            {
+                id = self.hint_id,
+                hl_group = "Comment",
+                virt_text_pos = "inline",
+                hl_eol = false,
+                strict = false,
+                virt_text = { { hint_lines[1], "Comment" } },
+            }
+        )
         return
     end
     local remnant = utils.read_to_end_of_line(0, row - 1, col)
-    local start_of_hint = { { hint_lines[1] .. string.rep(' ', #remnant), 'Comment' } }
+    local start_of_hint =
+        { { hint_lines[1] .. string.rep(" ", #remnant), "Comment" } }
     local hint_tail = {}
     for i = 2, #hint_lines - 1 do
-        table.insert(hint_tail, { { hint_lines[i], 'Comment' } })
+        table.insert(hint_tail, { { hint_lines[i], "Comment" } })
     end
     local last_line = hint_lines[#hint_lines]
-    table.insert(hint_tail, { { last_line .. remnant, 'Comment' } })
-    self.hint_id = vim.api.nvim_buf_set_extmark(0, autocomplicate:get_namespace(), row - 1, col, {
-        id = self.hint_id,
-        hl_group = 'Comment',
-        virt_text_pos = 'overlay',
-        hl_eol = false,
-        strict = false,
-        virt_text = start_of_hint,
-        virt_lines = hint_tail
-    })
+    table.insert(hint_tail, { { last_line .. remnant, "Comment" } })
+    self.hint_id = vim.api.nvim_buf_set_extmark(
+        0,
+        autocomplicate:get_namespace(),
+        row - 1,
+        col,
+        {
+            id = self.hint_id,
+            hl_group = "Comment",
+            virt_text_pos = "overlay",
+            hl_eol = false,
+            strict = false,
+            virt_text = start_of_hint,
+            virt_lines = hint_tail,
+        }
+    )
 end
 
 function autocomplicate:accept_hint()
@@ -189,8 +210,12 @@ function autocomplicate:accept_hint()
         return
     end
 
-    local hint_data =
-        vim.api.nvim_buf_get_extmark_by_id(0, self.get_namespace(self), self.hint_id, {})
+    local hint_data = vim.api.nvim_buf_get_extmark_by_id(
+        0,
+        self.get_namespace(self),
+        self.hint_id,
+        {}
+    )
     local row = hint_data[1]
     local col = hint_data[2]
     -- Add new lines to the buffer
@@ -231,7 +256,7 @@ function autocomplicate:request_new_hint()
     local closed = false
     self.hint_complete = false
     self.raw_hint_output_jsons = ""
-    self.accumulated_hint = ''
+    self.accumulated_hint = ""
     local handle
     local update_hint_with_stagger = StaggeredTask:new(function()
         self.update_hint(self)
@@ -240,7 +265,7 @@ function autocomplicate:request_new_hint()
         model = self.llm_model,
         prompt = self.get_prefix(self),
         suffix = self.get_suffix(self),
-        options = self.options
+        options = self.options,
     }
     logger:echo("requesting")
     local stdout = vim.uv.new_pipe(false)
@@ -250,22 +275,36 @@ function autocomplicate:request_new_hint()
         hide = true,
         detached = true,
         args = {
-            "--silent", "--location", self.deepseek_host,
-            "-X", "POST",
-            "--data", vim.fn.json_encode(payload),
-            "--header", "Content-Type: application/json"
+            "--silent",
+            "--location",
+            self.deepseek_host,
+            "-X",
+            "POST",
+            "--data",
+            vim.fn.json_encode(payload),
+            "--header",
+            "Content-Type: application/json",
         }, -- Replace with your URL
-        stdio = { nil, stdout, stderr }
+        stdio = { nil, stdout, stderr },
     }, function(code, signal)
         if code ~= 0 then
-            logger:error({ "Failed to retrieve autosuggestion, process exited", code, signal })
-            utils.communicate_error({ "[Autocomplicate] Failed to retrieve autosuggestion, process exited", code, signal, reason = self.raw_hint_output_jsons })
+            logger:error({
+                "Failed to retrieve autosuggestion, process exited",
+                code,
+                signal,
+            })
+            utils.communicate_error({
+                "[Autocomplicate] Failed to retrieve autosuggestion, process exited",
+                code,
+                signal,
+                reason = self.raw_hint_output_jsons,
+            })
         end
         logger:info("Finished retrieving data from autosuggestion server")
         self.hint_complete = true
         if closed ~= true then
-                closed = true
-                handle:close()
+            closed = true
+            handle:close()
         end
     end)
     if stdout then
@@ -274,7 +313,7 @@ function autocomplicate:request_new_hint()
                 return
             end
             if err then
-                logger:error({"Failure", err})
+                logger:error({ "Failure", err })
                 return
             end
             if data and #data > 0 then
@@ -289,7 +328,7 @@ function autocomplicate:request_new_hint()
                 return
             end
             if err then
-                logger:error({"Failure", err})
+                logger:error({ "Failure", err })
                 return
             end
             if data then
@@ -359,42 +398,60 @@ end
 ---@param config AutocomplicateConfig
 function autocomplicate.setup(config)
     autocomplicate.lines_in_context = config.context_line_size or 10
-    autocomplicate.deepseek_host = config.host or "http://localhost:11434/api/generate"
+    autocomplicate.deepseek_host = config.host
+        or "http://localhost:11434/api/generate"
     autocomplicate.allowed_file_types = config.allowed_file_types or {}
     autocomplicate.blacklisted_file_types = config.blacklisted_file_types or {}
-    autocomplicate.options = llm_options.parse_llm_options(config.llm_options or {})
+    autocomplicate.options =
+        llm_options.parse_llm_options(config.llm_options or {})
     autocomplicate.llm_model = config.model or "deepseek-coder-v2"
     --#region autocmd
     if config.register_autocmd then
-        vim.api.nvim_command('autocmd InsertEnter * lua AutocomplicateStart()')
-        vim.api.nvim_command('autocmd CursorMovedI * lua AutocomplicateCursorMoved()')
-        vim.api.nvim_command('autocmd InsertLeave * lua AutocomplicateStop()')
+        vim.api.nvim_command("autocmd InsertEnter * lua AutocomplicateStart()")
+        vim.api.nvim_command(
+            "autocmd CursorMovedI * lua AutocomplicateCursorMoved()"
+        )
+        vim.api.nvim_command("autocmd InsertLeave * lua AutocomplicateStop()")
     end
     --#endregion autocmd
     --#region register nvim commands
     vim.api.nvim_create_user_command("AutocomplicateStart", function()
         AutocomplicateStart()
     end, { desc = "Start pulling autosuggestions from LLM server" })
-    vim.api.nvim_create_user_command("AutocomplicateStop", function ()
+    vim.api.nvim_create_user_command("AutocomplicateStop", function()
         AutocomplicateStop()
     end, { desc = "Stop autocomplicate" })
     vim.api.nvim_create_user_command("AutocomplicateAcceptHint", function()
         AutocomplicateAcceptHint()
     end, { desc = "Accept autocomplicate complete autosuggestion" })
-    vim.api.nvim_create_user_command("AutocomplicateRejectHint", function ()
+    vim.api.nvim_create_user_command("AutocomplicateRejectHint", function()
         AutocomplicateRejectHint()
     end, { desc = "Reject autocomplicate complete autosuggestion" })
-    vim.api.nvim_create_user_command("AutocomplicateRefreshHint", function ()
+    vim.api.nvim_create_user_command("AutocomplicateRefreshHint", function()
         AutocomplicateRefreshHint()
     end, { desc = "Refresh autocomplicate autosuggestion" })
     --#endregion register nvim commands
     --#region keymaps
     if config.default_keymaps then
-        vim.keymap.set("i", "<C-S>", "<CMD>AutocomplicateAcceptHint<CR>", { desc = "Accept autocomplicate autosuggestion" })
-        vim.keymap.set("i", "<C-R>", "<CMD>AutocomplicateRejectHint<CR>", { desc = "Reject autocomplicate autosuggestion" })
-        vim.keymap.set("i", "<C-X>", "<CMD>AutocomplicateRefreshHint<CR>", { desc = "Refresh autocomplicate autosuggestion" })
+        vim.keymap.set(
+            "i",
+            "<C-S>",
+            "<CMD>AutocomplicateAcceptHint<CR>",
+            { desc = "Accept autocomplicate autosuggestion" }
+        )
+        vim.keymap.set(
+            "i",
+            "<C-R>",
+            "<CMD>AutocomplicateRejectHint<CR>",
+            { desc = "Reject autocomplicate autosuggestion" }
+        )
+        vim.keymap.set(
+            "i",
+            "<C-X>",
+            "<CMD>AutocomplicateRefreshHint<CR>",
+            { desc = "Refresh autocomplicate autosuggestion" }
+        )
     end
     --#endregion keymaps
 end
 return autocomplicate
-

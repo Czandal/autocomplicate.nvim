@@ -1,4 +1,4 @@
-local dump_to_string = require('autocomplicate.utils').dump_to_string
+local dump_to_string = require("autocomplicate.utils").dump_to_string
 -- hardcoded, change if you want to see the debug logs from autocomplicate
 local log_enabled = false
 -- set to file path if you want the logs to be printed
@@ -33,7 +33,7 @@ function logger:echo(input)
     end
     local time_str = os.date("%Y-%m-%d %H:%M:%", os.time())
     input = string.format("[%s] [ECHO] %s", time_str, dump_to_string(input))
-    vim.api.nvim_echo({{ input }}, true, { verbose = true })
+    vim.api.nvim_echo({ { input } }, true, { verbose = true })
 end
 
 ---@param input any
@@ -46,8 +46,8 @@ function logger:info(input)
     print(input)
     if self.log_to_file then
         local f = io.open(self.log_path, "a")
-        assert(f,"Can't open log file for append!")
-        f:write(input.."\n")
+        assert(f, "Can't open log file for append!")
+        f:write(input .. "\n")
         f:close()
     end
 end
@@ -62,8 +62,8 @@ function logger:warn(input)
     print(input)
     if self.log_to_file then
         local f = io.open(self.log_path, "a")
-        assert(f,"Can't open log file for appending!")
-        f:write(input.."\n")
+        assert(f, "Can't open log file for appending!")
+        f:write(input .. "\n")
         f:close()
     end
 end
@@ -78,12 +78,10 @@ function logger:error(input)
     print(input)
     if self.log_to_file then
         local f = io.open(self.log_path, "a")
-        assert(f,"Can't open log file for appending!")
-        f:write(input.."\n")
+        assert(f, "Can't open log file for appending!")
+        f:write(input .. "\n")
         f:close()
     end
 end
 
-
 return logger:new()
-
