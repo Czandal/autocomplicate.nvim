@@ -13,7 +13,7 @@ local autocomplicate = {
     namespace = nil,
     hint_id = nil,
     disabled = false,
-    deepseek_host = "http://127.0.0.1:11434/api/generate",
+    api_host = "http://127.0.0.1:11434/api/generate",
     raw_hint_output_jsons = "",
     hint_complete = true,
     accumulated_hint = "",
@@ -139,13 +139,13 @@ function autocomplicate:cursor_moved()
         return
     end
     if self.move_trigger and not self.move_trigger.ran then
-        self.move_trigger:run_with_stagger(90)
+        self.move_trigger:run_with_stagger(40)
         return
     end
     self.move_trigger = StaggeredTask:new(function()
         self.on_close = self.request_new_hint(self)
     end)
-    self.move_trigger:run_with_stagger(90)
+    self.move_trigger:run_with_stagger(40)
 end
 
 function autocomplicate:update_hint()
@@ -277,7 +277,7 @@ function autocomplicate:request_new_hint()
         args = {
             "--silent",
             "--location",
-            self.deepseek_host,
+            self.api_host,
             "-X",
             "POST",
             "--data",
@@ -398,7 +398,7 @@ end
 ---@param config AutocomplicateConfig
 function autocomplicate.setup(config)
     autocomplicate.lines_in_context = config.context_line_size or 10
-    autocomplicate.deepseek_host = config.host
+    autocomplicate.api_host = config.host
         or "http://localhost:11434/api/generate"
     autocomplicate.allowed_file_types = config.allowed_file_types or {}
     autocomplicate.blacklisted_file_types = config.blacklisted_file_types or {}
