@@ -263,7 +263,10 @@ function autocomplicate:request_new_hint()
         end
         logger:info("Finished retrieving data from autosuggestion server")
         self.hint_complete = true
-        handle:close()
+        if closed ~= true then
+                closed = true
+                handle:close()
+        end
     end)
     if stdout then
         vim.uv.read_start(stdout, function(err, data)
