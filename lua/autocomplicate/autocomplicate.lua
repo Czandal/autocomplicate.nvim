@@ -131,13 +131,13 @@ function autocomplicate:cursor_moved()
         return
     end
     if self.move_trigger and not self.move_trigger.ran then
-        self.move_trigger:run_with_stagger(50)
+        self.move_trigger:run_with_stagger(90)
         return
     end
     self.move_trigger = StaggeredTask:new(function()
         self.on_close = self.request_new_hint(self)
     end)
-    self.move_trigger:run_with_stagger(50)
+    self.move_trigger:run_with_stagger(90)
 end
 
 function autocomplicate:update_hint()
@@ -296,7 +296,7 @@ function autocomplicate:request_new_hint()
         end)
     end
     return function()
-        if ~closed then
+        if closed ~= true then
             logger:info("On Close called")
             closed = true
             self.hint_complete = true
