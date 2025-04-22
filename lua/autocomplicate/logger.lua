@@ -31,7 +31,7 @@ function logger:echo(input)
     if not self.enabled then
         return
     end
-    local time_str = os.date("%Y-%m-%d %H:%M:%", os.time())
+    local time_str = os.date("%Y-%m-%d %H:%M:%S", os.time())
     input = string.format("[%s] [ECHO] %s", time_str, dump_to_string(input))
     vim.api.nvim_echo({ { input } }, true, { verbose = true })
 end
@@ -41,7 +41,7 @@ function logger:info(input)
     if not self.enabled then
         return
     end
-    local time_str = os.date("%Y-%m-%d %H:%M:%", os.time())
+    local time_str = os.date("%Y-%m-%d %H:%M:%S", os.time())
     input = string.format("[%s] [INFO] %s", time_str, dump_to_string(input))
     print(input)
     if self.log_to_file then
