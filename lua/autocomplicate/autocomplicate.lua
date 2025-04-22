@@ -263,7 +263,9 @@ function autocomplicate:request_new_hint()
     self.accumulated_hint = ""
     local handle
     local update_hint_with_stagger = StaggeredTask:new(function()
-        self.update_hint(self)
+        vim.schedule(function()
+            self.update_hint(self)
+        end)
     end)
     local payload = {
         model = self.llm_model,
