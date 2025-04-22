@@ -124,6 +124,7 @@ function autocomplicate:should_run()
 end
 
 function autocomplicate:start()
+    logger:info("Start called")
     if autocomplicate:should_run() == false then
         return
     end
@@ -133,6 +134,7 @@ function autocomplicate:start()
 end
 
 function autocomplicate:cursor_moved()
+    logger:info("Cursor moved event triggered")
     -- stop current generation
     self.clear_hint(self)
     if self.disabled then
@@ -143,7 +145,9 @@ function autocomplicate:cursor_moved()
         return
     end
     self.move_trigger = StaggeredTask:new(function()
-        self.on_close = self.request_new_hint(self)
+        vim.schedule(function()
+            self.on_close = self.request_new_hint(self)
+        end)
     end)
     self.move_trigger:run_with_stagger(40)
 end
@@ -267,7 +271,7 @@ function autocomplicate:request_new_hint()
         suffix = self.get_suffix(self),
         options = self.options,
     }
-    logger:echo("requesting")
+    logger:info("requesting")
     local stdout = vim.uv.new_pipe(false)
     local stderr = vim.uv.new_pipe(false)
     ---@diagnostic disable-next-line: missing-fields
@@ -349,14 +353,6 @@ function autocomplicate:request_new_hint()
 end
 
 --#region Globals
-
-function AutocomplicateDebug()
-    autocomplicate:cursor_moved()
-end
-
-function AutocomplicateDebug2()
-    autocomplicate:stop()
-end
 
 function AutocomplicateStart()
     autocomplicate:start()
@@ -441,13 +437,13 @@ function autocomplicate.setup(config)
         )
         vim.keymap.set(
             "i",
-            "<C-R>",
+            "<C-X>",
             "<CMD>AutocomplicateRejectHint<CR>",
             { desc = "Reject autocomplicate autosuggestion" }
         )
         vim.keymap.set(
             "i",
-            "<C-X>",
+            "<C-R>",
             "<CMD>AutocomplicateRefreshHint<CR>",
             { desc = "Refresh autocomplicate autosuggestion" }
         )
