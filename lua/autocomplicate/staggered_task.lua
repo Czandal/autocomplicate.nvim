@@ -18,7 +18,8 @@ function StaggeredTask:new(task)
     return obj
 end
 
----Resets the stagger on the task run, if there is none it start the timer to run it within the time defined by the param
+---Resets the stagger on the task run,
+---if there is none it starts the timer to run it within the time defined by the param
 ---@param stagger_ms number
 function StaggeredTask:run_with_stagger(stagger_ms)
     self.ran = false
@@ -26,10 +27,8 @@ function StaggeredTask:run_with_stagger(stagger_ms)
         self.timer.stop(self.timer)
     end
     self.timer:start(stagger_ms, 0, function()
-        vim.schedule(function()
-            self.ran = true
-            self.task()
-        end) -- Schedule to avoid async issues
+        self.ran = true
+        self.task()
     end)
 end
 

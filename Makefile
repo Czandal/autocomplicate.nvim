@@ -9,7 +9,7 @@ lint:
 test:
 	echo "===> Testing"
 	nvim --headless --noplugin -u scripts/tests/minimal.vim \
-        -c "PlenaryBustedDirectory lua/harpoon/test/ {minimal_init = 'scripts/tests/minimal.vim'}"
+        -c "PlenaryBustedDirectory lua/autocomplicate/test/ {minimal_init = 'scripts/tests/minimal.vim'}"
 
 clean:
 	echo "===> Cleaning"
