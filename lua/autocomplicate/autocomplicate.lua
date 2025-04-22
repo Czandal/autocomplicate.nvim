@@ -2,10 +2,7 @@ local StaggeredTask = require("autocomplicate.staggered_task")
 local logger = require("autocomplicate.logger")
 local utils = require("autocomplicate.utils")
 local llm_options = require("autocomplicate.llm_options")
--- TODO: Handle cursor being at the end of buffer
--- TODO: Setup config
--- enable/disable
--- add commands
+-- TODO:
 -- clean up the files
 -- separate extra variables
 local plugin_name = "autocomplicate"

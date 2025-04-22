@@ -5,4 +5,4 @@
   - How to use/configure
   - How to contribute
 * Tests
-* Handle cursor at the end of buffer
+* Faster mode, which caches outputs for all/some queries, so that they can be re-used (verify how likely such case is)
