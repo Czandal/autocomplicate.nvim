@@ -356,7 +356,9 @@ function autocomplicate:request_new_hint()
             closed = true
             self.hint_complete = true
             update_hint_with_stagger:close()
-            handle:close()
+            if handle then
+                handle:close()
+            end
         end
     end
 end
