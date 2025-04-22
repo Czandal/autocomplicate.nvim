@@ -388,6 +388,14 @@ function AutocomplicateRefreshHint()
     autocomplicate:cursor_moved()
 end
 
+function AutocomplicateDisable()
+    autocomplicate.disabled = true
+end
+
+function AutocomplicateEnable()
+    autocomplicate.disabled = false
+end
+
 ---@class AutocomplicateConfig
 ---@field register_autocmd? boolean defaults to false
 ---@field host? string defaults to http://localhost:11434/api/generate
@@ -435,6 +443,12 @@ function autocomplicate.setup(config)
     vim.api.nvim_create_user_command("AutocomplicateRefreshHint", function()
         AutocomplicateRefreshHint()
     end, { desc = "Refresh autocomplicate autosuggestion" })
+    vim.api.nvim_create_user_command("AutocomplicateDisable", function()
+        AutocomplicateDisable()
+    end, { desc = "Disable autocomplicate" })
+    vim.api.nvim_create_user_command("AutocomplicateEnable", function()
+        AutocomplicateEnable()
+    end, { desc = "Disable autocomplicate" })
     --#endregion register nvim commands
     --#region keymaps
     if config.default_keymaps then
