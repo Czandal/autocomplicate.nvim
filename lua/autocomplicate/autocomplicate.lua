@@ -134,14 +134,21 @@ function autocomplicate:start()
 end
 
 function autocomplicate:cursor_moved()
-    logger:info("Cursor moved event triggered")
+    logger:info({ "Cursor moved event triggered", time = vim.uv.hrtime() })
+    -- for some reason initial lag between first CursorMovedI and the second one is very
+    -- it is not the case for the next ones
+    local init_stagger_ms = 550
+    local next_stagger_ms = 50
     -- stop current generation
     self.clear_hint(self)
     if self.disabled then
         return
     end
     if self.move_trigger and not self.move_trigger.ran then
-        self.move_trigger:run_with_stagger(40)
+        if self.move_trigger.ran then
+            self.move_trigger:run_with_stagger(init_stagger_ms)
+        end
+        self.move_trigger:run_with_stagger(next_stagger_ms)
         return
     end
     self.move_trigger = StaggeredTask:new(function()
@@ -149,7 +156,7 @@ function autocomplicate:cursor_moved()
             self.on_close = self.request_new_hint(self)
         end)
     end)
-    self.move_trigger:run_with_stagger(40)
+    self.move_trigger:run_with_stagger(init_stagger_ms)
 end
 
 function autocomplicate:update_hint()
@@ -273,7 +280,7 @@ function autocomplicate:request_new_hint()
         suffix = self.get_suffix(self),
         options = self.options,
     }
-    logger:info("requesting")
+    logger:info({ "requesting", time = vim.uv.hrtime() })
     local stdout = vim.uv.new_pipe(false)
     local stderr = vim.uv.new_pipe(false)
     ---@diagnostic disable-next-line: missing-fields
