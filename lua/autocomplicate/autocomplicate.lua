@@ -355,7 +355,7 @@ function autocomplicate:request_new_hint()
             logger:info("On Close called")
             closed = true
             self.hint_complete = true
-            update_hint_with_stagger:stop()
+            update_hint_with_stagger:close()
             handle:close()
         end
     end

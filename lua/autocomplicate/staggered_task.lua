@@ -38,4 +38,11 @@ function StaggeredTask:stop()
         self.timer.stop(self.timer)
     end
 end
+
+--- closes the timer handle and frees the memory
+function StaggeredTask:close()
+    if self.timer ~= nil and not self.timer:is_closing() then
+        self.timer:close()
+    end
+end
 return StaggeredTask
