@@ -448,6 +448,13 @@ function autocomplicate.setup(config)
     vim.api.nvim_create_user_command("AutocomplicateEnable", function()
         AutocomplicateEnable()
     end, { desc = "Disable autocomplicate" })
+    vim.api.nvim_create_user_command("AutocomplicateIsRunning", function ()
+        if autocomplicate:should_run() then
+            logger:echo("Autocomplicate is running", true)
+        else
+            logger:echo("Autocomlicate is off", true)
+        end
+    end, { desc = "Informs user whether Autocomlicate is running in this context" })
     --#endregion register nvim commands
     --#region keymaps
     if config.default_keymaps then

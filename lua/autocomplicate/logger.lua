@@ -27,8 +27,9 @@ function logger:enable()
 end
 
 ---@param input any
-function logger:echo(input)
-    if not self.enabled then
+---@param forced? boolean
+function logger:echo(input, forced)
+    if not forced and not self.enabled then
         return
     end
     local time_str = os.date("%Y-%m-%d %H:%M:%S", os.time())
