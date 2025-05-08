@@ -253,11 +253,14 @@ function autocomplicate:get_suffix()
     -- No need to check boundary, function does it for us
     local lines = vim.api.nvim_buf_get_lines(0, row - 1, end_line, false)
     if #lines < 1 then
-        return ""
+        -- Note: new line ensures that LLM does not consider it as "null" and start chat mode instead of FIM mode
+        return "\n"
     end
     local first_line = string.sub(lines[1], col + 1)
     lines[1] = first_line
-    return table.concat(lines, "\n")
+    local out = table.concat(lines, "\n")
+    if out == "" then return "\n" end
+    return out
 end
 
 function autocomplicate:request_new_hint()
