@@ -103,6 +103,9 @@ end
 
 ---@return boolean
 function autocomplicate:should_run()
+    if self.disabled then
+        return false
+    end
     local full_path = vim.api.nvim_buf_get_name(0)
     for _, filetype in ipairs(self.blacklisted_file_types) do
         if string.find(full_path, filetype) ~= nil then
@@ -259,7 +262,9 @@ function autocomplicate:get_suffix()
     local first_line = string.sub(lines[1], col + 1)
     lines[1] = first_line
     local out = table.concat(lines, "\n")
-    if out == "" then return "\n" end
+    if out == "" then
+        return "\n"
+    end
     return out
 end
 
@@ -451,13 +456,15 @@ function autocomplicate.setup(config)
     vim.api.nvim_create_user_command("AutocomplicateEnable", function()
         AutocomplicateEnable()
     end, { desc = "Disable autocomplicate" })
-    vim.api.nvim_create_user_command("AutocomplicateIsRunning", function ()
+    vim.api.nvim_create_user_command("AutocomplicateIsRunning", function()
         if autocomplicate:should_run() then
             logger:echo("Autocomplicate is running", true)
         else
             logger:echo("Autocomlicate is off", true)
         end
-    end, { desc = "Informs user whether Autocomlicate is running in this context" })
+    end, {
+        desc = "Informs user whether Autocomlicate is running in this context",
+    })
     --#endregion register nvim commands
     --#region keymaps
     if config.default_keymaps then
