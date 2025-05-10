@@ -141,7 +141,7 @@ function autocomplicate:cursor_moved()
     local next_stagger_ms = 50
     -- stop current generation
     self.clear_hint(self)
-    if self.disabled then
+    if not self:should_run() then
         return
     end
     if self.move_trigger and not self.move_trigger.ran then
