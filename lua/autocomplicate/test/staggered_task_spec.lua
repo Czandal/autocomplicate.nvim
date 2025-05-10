@@ -38,13 +38,17 @@ describe("staggered_task", function()
             local test_entity = StaggeredTask:new(task)
             local start_time = vim.uv.hrtime()
             test_entity:run_with_stagger(5)
-            vim.wait(3)
+            vim.wait(2)
             test_entity:run_with_stagger(5)
             vim.wait(10)
             assert(num_of_calls, 1)
             assert(called_time ~= nil)
             assert(test_entity.ran == true)
-            assert(called_time - start_time >= 8 * 1000 * 1000)
+            assert(
+                called_time - start_time >= 7 * 1000 * 1000,
+                "Stagger is shorter than it should be: "
+                    .. (called_time - start_time) / 1000000.0
+            )
             assert(called_time - start_time <= 10 * 1000 * 1000)
         end
     )

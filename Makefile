@@ -8,8 +8,12 @@ lint:
 
 test:
 	echo "===> Testing"
+	echo "Preparing test server"
+	docker compose up -d || \
+		(echo "Test image not present, building..." && cd test-server && docker build -t autocomplicate-test-server . && cd .. && docker compose up -d)
 	nvim --headless --noplugin -u scripts/tests/minimal.vim \
         -c "PlenaryBustedDirectory lua/autocomplicate/test/ {minimal_init = 'scripts/tests/minimal.vim'}"
+	docker compose down
 
 clean:
 	echo "===> Cleaning"
