@@ -1,0 +1,11 @@
+services:
+  autocomplicate_test_server:
+    image: autocomplicate-test-server
+    container_name: autocomplicate-test-server-dev
+    networks:
+      - dev-network
+    ports:
+      - '11445:11445'
+networks:
+  dev-network:
+    driver: bridge
