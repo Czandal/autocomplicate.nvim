@@ -2,6 +2,7 @@ local StaggeredTask = require("autocomplicate.staggered_task")
 local logger = require("autocomplicate.logger")
 local utils = require("autocomplicate.utils")
 local llm_options = require("autocomplicate.llm_options")
+local request_hint = require("autocomplicate.request_hint").request_hint
 -- TODO:
 -- clean up the files
 -- separate extra variables
@@ -144,7 +145,7 @@ end
 
 function autocomplicate:cursor_moved()
     logger:info({ "Cursor moved event triggered", time = vim.uv.hrtime() })
-    -- for some reason initial lag between first CursorMovedI and the second one is very
+    -- for some reason initial lag between first CursorMovedI and the second one is very high
     -- it is not the case for the next ones
     local init_stagger_ms = 550
     local next_stagger_ms = 50
@@ -282,97 +283,49 @@ function autocomplicate:request_new_hint()
     self.hint_complete = false
     self.raw_hint_output_jsons = ""
     self.accumulated_hint = ""
-    local handle
     local update_hint_with_stagger = StaggeredTask:new(function()
         vim.schedule(function()
             self.update_hint(self)
         end)
     end)
-    local payload = {
-        model = self.llm_model,
-        prompt = self.get_prefix(self),
-        suffix = self.get_suffix(self),
-        options = self.options,
-    }
-    logger:info({ "requesting", time = vim.uv.hrtime() })
-    local stdout = vim.uv.new_pipe(false)
-    local stderr = vim.uv.new_pipe(false)
-    ---@diagnostic disable-next-line: missing-fields
-    handle = vim.uv.spawn("curl", {
-        hide = true,
-        detached = true,
-        args = {
-            "--silent",
-            "--location",
-            self.api_host,
-            "-X",
-            "POST",
-            "--data",
-            vim.fn.json_encode(payload),
-            "--header",
-            "Content-Type: application/json",
-        }, -- Replace with your URL
-        stdio = { nil, stdout, stderr },
-    }, function(code, signal)
-        if code ~= 0 then
+    local stop_hint_request = request_hint(
+        self.api_host,
+        self:get_prefix(),
+        self:get_suffix(),
+        self.llm_model,
+        self.options,
+        function(err)
             logger:error({
                 "Failed to retrieve autosuggestion, process exited",
-                code,
-                signal,
+                err,
             })
             utils.communicate_error({
                 "[Autocomplicate] Failed to retrieve autosuggestion, process exited",
-                code,
-                signal,
+                err,
                 reason = self.raw_hint_output_jsons,
             })
-        end
-        logger:info("Finished retrieving data from autosuggestion server")
-        self.hint_complete = true
-        if closed ~= true then
-            closed = true
-            handle:close()
-        end
-    end)
-    if stdout then
-        vim.uv.read_start(stdout, function(err, data)
-            if self.disabled or closed then
+        end,
+        function(data)
+            if self.disabled then
                 return
             end
-            if err then
-                logger:error({ "Failure", err })
-                return
-            end
+
             if data and #data > 0 then
                 self.raw_hint_output_jsons = self.raw_hint_output_jsons .. data
                 update_hint_with_stagger:run_with_stagger(15)
             end
-        end)
-    end
-    if stderr then
-        vim.uv.read_start(stderr, function(err, data)
-            if self.disabled or closed then
-                return
-            end
-            if err then
-                logger:error({ "Failure", err })
-                return
-            end
-            if data then
-                self.raw_hint_output_jsons = self.raw_hint_output_jsons .. data
-                update_hint_with_stagger:run_with_stagger(15)
-            end
-        end)
-    end
+        end,
+        function()
+            logger:info("Finished retrieving data from autosuggestion server")
+            self.hint_complete = true
+        end
+    )
     return function()
         if closed ~= true then
+            stop_hint_request()
             logger:info("On Close called")
             closed = true
-            self.hint_complete = true
             update_hint_with_stagger:close()
-            if handle then
-                handle:close()
-            end
         end
     end
 end
