@@ -5,7 +5,7 @@ After trying out all LLM plugins I could find on GitHub (March 2025), I was disa
 The best out of them all was copilot plugin, its main downside being locked to a single model, not being able to run it offline and being tied to solutions with dubious security practices. That is why I have decided to start working on my own plugin
 # How to install
 You can use lazy or any other plugin manager of choice, here is an example using Lazy:
-```
+```lua
 return {
     "Czandal/autocomplicate.nvim",
     name = "autocomplicate",
@@ -39,7 +39,24 @@ You can use following parameters, when calling `require("autocomplicate").setup`
 | model | Model used by the plugin, make sure that name matches one used by the LLM host | deepseek-coder-v2 |
 | llm_options | All the options sent to LLM, see https://github.com/ollama/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values | {} |
 
-# Contributions
+# Usage
+For minimal setup, one can use:
+```lua
+    require("autocomplicate").setup({
+        register_autocmd = true,
+        default_keymaps = true,
+    })
+```
+This will enable the suggestions displayed as virtual text whenever one is in insert mode.
+If one decides to setup autocmds/keymapping by oneself, then following public user functions are available after calling `setup` function:
+* AutocomplicateAcceptHint - accepts current hint
+* AutocomplicateRejectHint - rejects current hint
+* AutocomplicateRefreshHint - refreshes current hint
+* AutocomplicateDisable - disables the plugin, by default it is enabled after calling setup
+* AutocomplicateEnable - enables the plugin
+* AutocomplicateStart - starts the plugin, requesting the LLM for first hint; no-op if plugin is disabled or buffer matches blacklisted_file_types
+* AutocomplicateIsRunning - Informs the user via echo message whether plugin is running, is not disabled for the current buffer
 
+# Contributions
 Any contributions are more then welcome, feel free to open issues and/or pull requests
 

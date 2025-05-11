@@ -10,6 +10,7 @@ local autocomplicate = {
     namespace = nil,
     hint_id = nil,
     disabled = false,
+    stopped = false,
     api_host = "http://127.0.0.1:11434/api/generate",
     raw_hint_output_jsons = "",
     hint_complete = true,
@@ -97,12 +98,12 @@ function autocomplicate:clear_hint()
 end
 
 function autocomplicate:stop()
-    self.disabled = true
+    self.stopped = true
     self.clear_hint(self)
 end
 
 ---@return boolean
-function autocomplicate:should_run()
+function autocomplicate:should_start()
     if self.disabled then
         return false
     end
@@ -123,12 +124,20 @@ function autocomplicate:should_run()
     return false
 end
 
+---@return boolean
+function autocomplicate:should_run()
+    if self.stopped then
+        return false
+    end
+    return autocomplicate:should_start()
+end
+
 function autocomplicate:start()
     logger:info("Start called")
     if autocomplicate:should_run() == false then
         return
     end
-    self.disabled = false
+    self.stopped = false
     self.clear_hint(self)
     self.on_close = self.request_new_hint(self)
 end
@@ -397,6 +406,7 @@ end
 
 function AutocomplicateDisable()
     autocomplicate.disabled = true
+    autocomplicate:clear_hint()
 end
 
 function AutocomplicateEnable()
