@@ -135,7 +135,7 @@ end
 
 function autocomplicate:start()
     logger:info("Start called")
-    if autocomplicate:should_run() == false then
+    if autocomplicate:should_start() == false then
         return
     end
     self.stopped = false
