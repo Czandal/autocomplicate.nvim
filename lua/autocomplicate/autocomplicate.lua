@@ -387,7 +387,7 @@ function autocomplicate.setup(config)
     end
     if config.path_to_log then
         logger.log_path = config.path_to_log
-        logger:info({"Logging to:", config.path_to_log})
+        logger:info({ "Logging to:", config.path_to_log })
     end
     if config.log_to_console ~= nil then
         logger.log_to_console = config.log_to_console

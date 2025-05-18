@@ -3,7 +3,6 @@ local dump_to_string = require("autocomplicate.utils").dump_to_string
 ---@class logger
 ---Highly inefficient logger implementation, which should be used only for dev purposes
 ---@field enabled boolean
----@field log_to_file boolean
 ---@field log_path string | nil
 ---@field log_to_console boolean
 local logger = {}
@@ -11,7 +10,6 @@ logger.__index = logger
 function logger:new()
     local obj = setmetatable({}, self)
     obj.enabled = false
-    obj.log_to_file = false
     obj.log_path = nil
     return obj
 end
@@ -44,7 +42,7 @@ function logger:info(input)
     if self.log_to_console then
         print(input)
     end
-    if self.log_to_file then
+    if self.log_path then
         local f = io.open(self.log_path, "a")
         assert(f, "Can't open log file for append!")
         f:write(input .. "\n")
@@ -62,7 +60,7 @@ function logger:warn(input)
     if self.log_to_console then
         print(input)
     end
-    if self.log_to_file then
+    if self.log_path then
         local f = io.open(self.log_path, "a")
         assert(f, "Can't open log file for appending!")
         f:write(input .. "\n")
@@ -80,7 +78,7 @@ function logger:error(input)
     if self.log_to_console then
         print(input)
     end
-    if self.log_to_file then
+    if self.log_path then
         local f = io.open(self.log_path, "a")
         assert(f, "Can't open log file for appending!")
         f:write(input .. "\n")
