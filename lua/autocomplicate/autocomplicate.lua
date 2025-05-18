@@ -373,9 +373,25 @@ end
 ---@field default_keymaps? boolean defaults to false
 ---@field model string defaults to deepseek-coder-v2
 ---@field llm_options? AutocomplicateLlmOptions defaults to {}
+---@field enable_logging? boolean defaults to false
+---@field path_to_log? string defaults to None, if not present then logger does not log to a file
+---@field log_to_console? boolean defaults to None, if not present then logger does not log to a file
 
 ---@param config AutocomplicateConfig
 function autocomplicate.setup(config)
+    if config.enable_logging then
+        logger:enable()
+        logger:info("Logging enabled")
+    else
+        logger:disable()
+    end
+    if config.path_to_log then
+        logger.log_path = config.path_to_log
+        logger:info({"Logging to:", config.path_to_log})
+    end
+    if config.log_to_console ~= nil then
+        logger.log_to_console = config.log_to_console
+    end
     autocomplicate.lines_in_context = config.context_line_size or 10
     autocomplicate.api_host = config.host
         or "http://localhost:11434/api/generate"
@@ -419,7 +435,7 @@ function autocomplicate.setup(config)
         if autocomplicate:should_run() then
             logger:echo("Autocomplicate is running", true)
         else
-            logger:echo("Autocomlicate is off", true)
+            logger:echo("Autocomplicate is off", true)
         end
     end, {
         desc = "Informs user whether Autocomlicate is running in this context",
@@ -447,5 +463,6 @@ function autocomplicate.setup(config)
         )
     end
     --#endregion keymaps
+    logger:info("Autocomplicate setup finished")
 end
 return autocomplicate
