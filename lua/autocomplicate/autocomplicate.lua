@@ -298,10 +298,6 @@ function autocomplicate:request_new_hint()
             logger:error({
                 "Failed to retrieve autosuggestion, process exited",
                 err,
-            })
-            utils.communicate_error({
-                "[Autocomplicate] Failed to retrieve autosuggestion, process exited",
-                err,
                 reason = self.raw_hint_output_jsons,
             })
         end,

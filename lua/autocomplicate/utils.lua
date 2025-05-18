@@ -1,4 +1,3 @@
-local logger = require("autocomplicate.logger")
 ---@param buffernum integer 0 for current
 ---@param row integer
 ---@param col integer
@@ -23,13 +22,7 @@ local function dump_to_string(o)
     end
 end
 
----@param input any
-local function communicate_error(input)
-    logger:error(input)
-end
-
 return {
     read_to_end_of_line = read_to_end_of_line,
-    communicate_error = communicate_error,
     dump_to_string = dump_to_string,
 }
