@@ -300,6 +300,13 @@ function autocomplicate:request_new_hint()
                 err,
                 reason = self.raw_hint_output_jsons,
             })
+            vim.schedule(function()
+                logger:echo({
+                    msg = "Failed to retrieve autosuggestion, process exited",
+                    error = err,
+                    reason = self.raw_hint_output_jsons,
+                }, true)
+            end)
         end,
         function(data)
             if self.disabled then
