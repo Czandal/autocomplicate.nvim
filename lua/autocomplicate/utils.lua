@@ -1,3 +1,4 @@
+local logger = require("autocomplicate.logger")
 ---@param buffernum integer 0 for current
 ---@param row integer
 ---@param col integer
@@ -24,7 +25,7 @@ end
 
 ---@param input any
 local function communicate_error(input)
-    vim.api.nvim_echo({ dump_to_string(input) }, true, { err = true })
+    logger:error(input)
 end
 
 return {
