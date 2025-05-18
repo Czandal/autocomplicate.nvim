@@ -12,7 +12,7 @@ test:
 	docker compose up -d || \
 		(echo "Test image not present, building..." && cd test-server && docker build -t autocomplicate-test-server . && cd .. && docker compose up -d)
 	nvim --headless  \
-        -c "lua require('plenary.test_harness').test_directory('lua/autocomplicate/test/', {minimal_init = 'scripts/tests/minimal.vim'})"
+        -c "lua require('plenary.test_harness').test_directory('lua/autocomplicate/test/')"
 	docker compose down
 
 clean:
