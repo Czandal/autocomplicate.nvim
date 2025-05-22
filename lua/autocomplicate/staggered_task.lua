@@ -45,4 +45,14 @@ function StaggeredTask:close()
         self.timer:close()
     end
 end
+
+--- runs the task without any stagger, stops any timer if it is running
+function StaggeredTask:force_run()
+    if self.ran ~= true then
+        self.ran = true
+        self:stop()
+        self.task()
+    end
+end
+
 return StaggeredTask

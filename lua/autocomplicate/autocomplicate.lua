@@ -321,6 +321,9 @@ function autocomplicate:request_new_hint()
         function()
             logger:info("Finished retrieving data from autosuggestion server")
             self.hint_complete = true
+            if not update_hint_with_stagger.ran then
+                update_hint_with_stagger:force_run()
+            end
         end
     )
     return function()
