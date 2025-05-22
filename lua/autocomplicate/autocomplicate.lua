@@ -139,8 +139,7 @@ function autocomplicate:start()
         return
     end
     self.stopped = false
-    self.clear_hint(self)
-    self.on_close = self.request_new_hint(self)
+    return autocomplicate:cursor_moved()
 end
 
 function autocomplicate:cursor_moved()
@@ -151,12 +150,13 @@ function autocomplicate:cursor_moved()
     local next_stagger_ms = 50
     -- stop current generation
     self.clear_hint(self)
-    if not self:should_run() then
+    if self:should_run() == false then
         return
     end
-    if self.move_trigger and not self.move_trigger.ran then
+    if self.move_trigger then
         if self.move_trigger.ran then
             self.move_trigger:run_with_stagger(init_stagger_ms)
+            return
         end
         self.move_trigger:run_with_stagger(next_stagger_ms)
         return
