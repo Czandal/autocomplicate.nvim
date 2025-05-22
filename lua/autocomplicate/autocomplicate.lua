@@ -447,6 +447,15 @@ function autocomplicate.setup(config)
     end, {
         desc = "Informs user whether Autocomlicate is running in this context",
     })
+    vim.api.nvim_create_user_command("AutocomplicateIsActive", function()
+        if autocomplicate:should_start() then
+            logger:echo("Autocomplicate is active", true)
+        else
+            logger:echo("Autocomplicate is inactive", true)
+        end
+    end, {
+        desc = "Informs user whether when prompted using AutocomplicateStart will it start",
+    })
     --#endregion register nvim commands
     --#region keymaps
     if config.default_keymaps then
