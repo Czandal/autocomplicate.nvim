@@ -170,7 +170,7 @@ function autocomplicate:cursor_moved()
 end
 
 function autocomplicate:update_hint()
-    if self.should_run == false then
+    if self:should_run() == false then
         return
     end
     local row, col = unpack(vim.api.nvim_win_get_cursor(0))
